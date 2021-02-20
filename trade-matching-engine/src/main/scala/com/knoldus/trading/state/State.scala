@@ -1,15 +1,15 @@
 package com.knoldus.trading.state
 
 trait State {
-  def isFinal: Boolean
+  def isFinalState: Boolean
 
-  final def isNonFinal: Boolean = !isFinal
+  final def isNonFinalState: Boolean = !isFinalState
 }
 
-trait Final {
-  def isFinal: Boolean = true
+trait FinalState {
+  def isFinalState: Boolean = true
 }
 
-trait NonFinal {
-  def isFinal: Boolean = false
+trait NonFinalState {
+  def isFinalState: Boolean = false
 }

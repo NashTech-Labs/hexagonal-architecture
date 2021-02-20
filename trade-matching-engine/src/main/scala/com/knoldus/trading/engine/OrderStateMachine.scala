@@ -4,14 +4,14 @@ import com.knoldus.common.command.{Command, CreateNewOrder}
 import com.knoldus.common.event.Event
 import com.knoldus.trading.event.{OrderCreated, OrderInternalEvent}
 import com.knoldus.trading.model.OrderModel.Order
-import com.knoldus.trading.state.{Final, NonFinal, OrderState, OrderStatus}
+import com.knoldus.trading.state.{FinalState, NonFinalState, OrderState, OrderStatus}
 
 object OrderStateMachine {
 
   def newOrder(order: Order): OrderState = New(order)
 
   // states
-  case class New(order: Order) extends OrderState with NonFinal {
+  case class New(order: Order) extends OrderState with NonFinalState {
 
     override def handleCommand: PartialFunction[Command, OrderInternalEvent] = {
       case cmd: CreateNewOrder =>
