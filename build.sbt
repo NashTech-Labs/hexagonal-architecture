@@ -8,10 +8,18 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.12"
 )
 
-lazy val fixAdapter = (project in file("fix-adapter")).
+lazy val common = (project in file("common"))
+  .settings(commonSettings,
+    name := "common",
+    libraryDependencies ++= Seq(
+      akka_http_spray_json
+    )
+  )
+
+lazy val tradeFixAdapter = (project in file("trade-fix-adapter")).
   settings(commonSettings: _*).
   settings(
-    name := "fix-adapter",
+    name := "trade-fix-adapter",
     libraryDependencies ++= Seq(
       quickFixj,
       akka_persistence_typed,
@@ -25,12 +33,12 @@ lazy val fixAdapter = (project in file("fix-adapter")).
       jodaTime,
       googleGuava
     )
-  )
+  ).dependsOn(common)
 
-lazy val viewAdapter = (project in file("view-adapter")).
+lazy val tradeViewAdapter = (project in file("trade-view-adapter")).
   settings(commonSettings: _*).
   settings(
-    name := "view-adapter",
+    name := "trade-view-adapter",
     libraryDependencies ++= Seq(
       megard_http,
       akka_persistence_typed,
@@ -43,7 +51,7 @@ lazy val viewAdapter = (project in file("view-adapter")).
       jodaTime,
       googleGuava
     )
-  )
+  ).dependsOn(common)
 
 lazy val tradeBookingAdapter = (project in file("trade-booking-adapter")).
   settings(commonSettings: _*).
@@ -61,7 +69,7 @@ lazy val tradeBookingAdapter = (project in file("trade-booking-adapter")).
       jodaTime,
       googleGuava
     )
-  )
+  ).dependsOn(common)
 
 lazy val tradeMatchingEngine = (project in file("trade-matching-engine")).
   settings(commonSettings: _*).
@@ -79,9 +87,10 @@ lazy val tradeMatchingEngine = (project in file("trade-matching-engine")).
       jodaTime,
       googleGuava
     )
-  )
+  ).dependsOn(common)
 lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     name := "Hexagonal-Architecture"
-  ).aggregate(tradeMatchingEngine, fixAdapter, viewAdapter, tradeBookingAdapter)
+  ).dependsOn(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter, tradeBookingAdapter)
+  .aggregate(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter, tradeBookingAdapter)
