@@ -2,28 +2,19 @@ package com.knoldus.trading.app
 
 import akka.actor.typed
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import com.knoldus.common.event.Event
+import com.knoldus.common.command.ExternalCommand
+import com.knoldus.trading.view.TradingHttpServer
 import com.typesafe.config.{Config, ConfigFactory}
+
 object TradingApp extends App {
-  val config: Config = ConfigFactory.load().getConfig(s"trading-system")
+  val config: Config = ConfigFactory.load()
 
-  val behavior = Behaviors.setup[Event] { ctx: ActorContext[Event] =>
+  val behavior = Behaviors.setup[ExternalCommand] { ctx: ActorContext[ExternalCommand] =>
+    BindingInputOutputHandler(ctx)
+    TradingHttpServer(ctx.system.classicSystem)
 
-
-    Behaviors.empty[Event]
+    Behaviors.empty[ExternalCommand]
   }
 
-   typed.ActorSystem(behavior, "TradingSystem", config)
-  /*implicit val actorSystem = ActorSystem( "FileToElasticSearch")
-
-  implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  val jazzListener = actorSystem.actorOf(Props[FixInputHandler]())
-  val musicListener = actorSystem.actorOf(Props[FixInputHandler]())
-  actorSystem.eventStream.subscribe(jazzListener, classOf[Jazz])
-  actorSystem.eventStream.subscribe(musicListener, classOf[AllKindsOfMusic])
-  // only musicListener gets this message, since it listens to *all* kinds of music:
-  actorSystem.eventStream.publish(Electronic("Parov Stelar"))
-  // jazzListener and musicListener will be notified about Jazz:
-  actorSystem.eventStream.publish(Jazz("Sonny Rollins"))*/
-
+  typed.ActorSystem(behavior, "TradingSystem", config)
 }

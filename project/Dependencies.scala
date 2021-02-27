@@ -5,6 +5,7 @@ object Dependencies {
   val akkaActorVersion = "2.6.5"
   val akkaHttpVersion = "10.1.11"
   val akkaStreamKafkaVersion = "2.0.3"
+  val cassandraVersion = "3.1.0"
 
   lazy val akka_persistence_typed       = "com.typesafe.akka"              %% "akka-persistence-typed"         % akkaActorVersion
   lazy val akka_persistence_query       = "com.typesafe.akka"              %% "akka-persistence-query"         % akkaActorVersion
@@ -14,6 +15,7 @@ object Dependencies {
   lazy val akka_persistence_jdbc        = "com.lightbend.akka"             %% "akka-persistence-jdbc"          % "4.0.0"
   lazy val akka_slick                   = "com.lightbend.akka"             %% "akka-stream-alpakka-slick"      % "2.0.0"
   lazy val akka_serialization_jackson   = "com.typesafe.akka"              %% "akka-serialization-jackson"     % akkaActorVersion
+  lazy val cassandra                    = "com.datastax.cassandra"         % "cassandra-driver-core"           % cassandraVersion
 
   lazy val lable_db                     = "org.fusesource.leveldbjni"      % "leveldbjni-all"                  % "1.8"
   lazy val level_db                     = "org.iq80.leveldb"               % "leveldb"                         % "0.7" exclude("com.google.guava", "guava")

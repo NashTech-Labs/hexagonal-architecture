@@ -1,4 +1,4 @@
-package com.knoldus.trading.view.util
+package com.knoldus.common.util
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.knoldus.common.model.OrderRequest.Order

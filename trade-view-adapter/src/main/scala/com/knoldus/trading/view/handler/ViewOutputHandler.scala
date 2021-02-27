@@ -1,10 +1,18 @@
 package com.knoldus.trading.view.handler
 
-import akka.actor.Actor
-import com.knoldus.common.event.OrderCreated
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+import com.knoldus.common.event.{ExternalEvent, MatchedOrderResponse, NewOrderCreated}
 
-class ViewOutputHandler extends Actor {
-  override def receive: Receive = {
-    case evt :OrderCreated => println(s"@@ view ${evt}")
+object ViewOutputHandler {
+
+  def apply(): Behavior[ExternalEvent] = Behaviors.receiveMessage {
+    case evt :NewOrderCreated =>
+      println(s"@@ view ${evt}")
+      Behaviors.same
+    case evt: MatchedOrderResponse =>
+      println(s" @@@ order has been matched ${evt}")
+      Behaviors.same
+    case _ => Behaviors.ignore
   }
 }
