@@ -19,16 +19,12 @@ trait CassandraConnection {
       s"{ 'class' : 'SimpleStrategy', 'replication_factor' : ${replicationFactor} }")
     session.execute(s"USE ${cassandraKeyspaces.get(0)}")
 
-    val typeQuery = s"CREATE TYPE TradeOrderInfo " +
-      s"(orderId text, side text, price double, quantity int, " +
-      s"productCode int, productType text, timeStamp bigint) "
-
-    val tableQuery = s"CREATE TABLE IF NOT EXISTS trader_reports " +
-      s"(tradeId bigint, price double, volume int, " +
-      s"tradeOrderInfo set<TradeOrderInfo>, status text, " +
+    val tableQuery = s"CREATE TABLE IF NOT EXISTS trade_reports " +
+      s"(tradeId text, price double, volume int, productCode int, " +
+      s"productType text, timeStamp bigint, " +
+      s"matchedOrderIds  list<text>, tradeStatus text, " +
       s" PRIMARY KEY (tradeId))"
 
-    createTables(session, typeQuery)
     createTables(session, tableQuery)
     session
   }

@@ -17,17 +17,8 @@ object Dependencies {
   lazy val akka_serialization_jackson   = "com.typesafe.akka"              %% "akka-serialization-jackson"     % akkaActorVersion
   lazy val cassandra                    = "com.datastax.cassandra"         % "cassandra-driver-core"           % cassandraVersion
 
-  lazy val lable_db                     = "org.fusesource.leveldbjni"      % "leveldbjni-all"                  % "1.8"
-  lazy val level_db                     = "org.iq80.leveldb"               % "leveldb"                         % "0.7" exclude("com.google.guava", "guava")
   lazy val logback                      = "ch.qos.logback"                 % "logback-classic"                 % "1.2.3"
-  lazy val megard_http                  = "ch.megard"                      %% "akka-http-cors"                 % "0.4.1"
-  lazy val scala_logging                = "com.typesafe.scala-logging"     %% "scala-logging"                  % "3.9.0"
   lazy val h2                           = "com.h2database"                 % "h2"                              % "1.4.197"
 
-  lazy val lift                         =  "net.liftweb"                   %% "lift-json"                      % "3.0.1"
-  lazy val json4s                       =  "org.json4s"                    %% "json4s-native"                  % "3.4.2"
-  lazy val jansi                        =  "org.fusesource.jansi"          % "jansi"                           % "1.12"
-  lazy val jodaTime                     =  "joda-time"                     % "joda-time"                       % "2.10.6"
-  lazy val googleGuava                  =  "com.google.guava"              % "guava"                           % "19.0"
   lazy val quickFixj                    =  "org.quickfixj"                 % "quickfixj-messages-fix44"        % "2.2.0"
 }

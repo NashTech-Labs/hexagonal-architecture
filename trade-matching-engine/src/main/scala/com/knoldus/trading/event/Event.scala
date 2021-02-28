@@ -9,4 +9,5 @@ trait OrderInternalEvent extends InternalEvent
 
 final case class OrderCreated(order: Order) extends OrderInternalEvent
 final case class MatchedOrder(order: Order, oppositeOrderId: String) extends OrderInternalEvent
+final case class OrderBooked(order: Order, oppositeOrderId: String) extends OrderInternalEvent
 

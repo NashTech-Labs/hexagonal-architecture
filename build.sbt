@@ -41,7 +41,6 @@ lazy val tradeViewAdapter = (project in file("trade-view-adapter")).
     name := "trade-view-adapter",
     libraryDependencies ++= Seq(
       logback,
-      megard_http,
       akka_persistence_typed,
       akka_stream,
       akka_http_spray_json

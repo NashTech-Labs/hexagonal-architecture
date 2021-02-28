@@ -6,4 +6,6 @@ trait Command
 
 trait ExternalCommand extends Command
 
-final case class CreateNewOrder(order: Order)  extends ExternalCommand
+final case class CreateNewOrder(order: Order) extends ExternalCommand
+
+final case class BookedOrder(orderId: String) extends ExternalCommand

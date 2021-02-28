@@ -1,27 +1,37 @@
 package com.knoldus.common.persistence
 
-import com.datastax.driver.core.ResultSet
+import com.datastax.driver.core.{ResultSet, Row}
+import com.knoldus.common.model.TradeReportResponse.TradeResponse
+
+import scala.collection.JavaConverters._
 
 object CassandraOperation extends CassandraConnection {
   val tableName = "trade_reports"
 
   def insertTradeReport(tradeJson: String): ResultSet = {
     println(s"About to insert : $tradeJson")
-    cassandraConn.execute(s"""INSERT INTO $tableName JSON '${tradeJson.replaceAll("'", "''")}'""")
+    cassandraConn.execute(s"""INSERT INTO trade_data_store.$tableName JSON '${tradeJson.replaceAll("'", "''")}'""")
   }
 
-  def findTradeReportById(tradeId: String): Unit = {
-    val result = cassandraConn.execute(
-      s"select * from trade_data_store.trade_reports where tradeId = $tradeId allow filtering;"
+  def findTradeReportById(tradeId: String): TradeResponse = {
+    val result: Row = cassandraConn.execute(
+      s"select * from trade_data_store.trade_reports where tradeid = '$tradeId' allow filtering;"
     ).one()
-    println(s"trade report is ${result.toString}")
+    getTradeReportResponse(result)
   }
 
-  def findAllTradeReport: Unit = {
-    val result = cassandraConn.execute(
+  private def getTradeReportResponse(result: Row): TradeResponse = {
+    TradeResponse(result.getString("tradeid"), result.getDouble("price"),
+      result.getInt("volume"), result.getInt("productcode"),
+      result.getString("producttype"), result.getLong("timestamp"),
+      result.getList("matchedorderids", classOf[String]).asScala.toList,
+      result.getString("tradestatus"))
+  }
+
+  def findAllTradeReport: List[TradeResponse] = {
+    val results = cassandraConn.execute(
       s"select * from trade_data_store.trade_reports allow filtering;"
     ).all()
-    println(s"all trade report is ${result.toString}")
+    results.asScala.toList.map(getTradeReportResponse)
   }
-
 }

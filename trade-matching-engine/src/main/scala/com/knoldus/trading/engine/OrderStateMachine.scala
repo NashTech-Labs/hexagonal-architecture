@@ -1,30 +1,31 @@
 package com.knoldus.trading.engine
 
-import com.knoldus.common.command.{Command, CreateNewOrder}
-import com.knoldus.common.event.{Event, ExternalEvent, MatchedOrderResponse, NewOrderCreated}
+import com.knoldus.common.command.{BookedOrder, Command, CreateNewOrder}
+import com.knoldus.common.event._
 import com.knoldus.common.model.OrderResponse.OrderCreatedResponse
 import com.knoldus.trading.command.OrderMatched
-import com.knoldus.trading.event.{MatchedOrder, OrderCreated, OrderInternalEvent}
+import com.knoldus.trading.event.{MatchedOrder, OrderBooked, OrderCreated, OrderInternalEvent}
 import com.knoldus.trading.model.OrderModel.Order
+import com.knoldus.trading.state.OrderStatus.OrderStatus
 import com.knoldus.trading.state.{FinalState, NonFinalState, OrderState, OrderStatus}
 
 object OrderStateMachine {
 
   def newOrder(order: Order): OrderState = New(order)
 
-  // states
+  private def getOrderResponse(order: Order, orderStatus: OrderStatus): OrderCreatedResponse =
+    OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity,
+      order.productCode, order.productType, order.timeStamp, orderStatus)
+
   case class New(order: Order) extends OrderState with NonFinalState {
 
     override def handleCommand: PartialFunction[Command, (OrderInternalEvent, ExternalEvent)] = {
       case _: CreateNewOrder =>
-        val orderResponse = OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity,
-        order.productCode, order.productType, order.timeStamp, OrderStatus.New)
-        val externalEvent = NewOrderCreated(orderResponse)
-        (OrderCreated(order.copy(orderStatus = OrderStatus.New)), externalEvent)
+        (OrderCreated(order.copy(orderStatus = OrderStatus.New)),
+          NewOrderCreated(getOrderResponse(order, OrderStatus.New)))
       case cmd: OrderMatched =>
-        val orderResponse = OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity,
-          order.productCode, order.productType, order.timeStamp, OrderStatus.Matched)
-        (MatchedOrder(order, cmd.matchedWithOrderId), MatchedOrderResponse(orderResponse, cmd.matchedWithOrderId))
+        (MatchedOrder(order, cmd.matchedWithOrderId), MatchedOrderResponse(getOrderResponse(order, OrderStatus.Matched),
+            cmd.matchedWithOrderId))
     }
 
     override def onEvent: PartialFunction[Event, OrderState] = {
@@ -36,24 +37,14 @@ object OrderStateMachine {
   case class Matched(order: Order, oppositeOrderId: String) extends OrderState with NonFinalState {
 
     override def handleCommand: PartialFunction[Command, (OrderInternalEvent, ExternalEvent)] = {
-      case cmd: CreateNewOrder => ???
+      case _: BookedOrder =>
+        (OrderBooked(order, oppositeOrderId), BookedOrderResponse(getOrderResponse(order, OrderStatus.Booked)))
     }
 
     override def onEvent: PartialFunction[Event, OrderState] = {
-      case evt: OrderCreated => copy(order = evt.order)
+      case _: OrderBooked => Booked(order.copy(orderStatus = OrderStatus.Booked), oppositeOrderId)
     }
   }
 
-  /*case class Booked(order: Order) extends OrderState with Final {
-
-    override def handleCommand: PartialFunction[Command, OrderInternalEvent] = {
-      case cmd: CreateNewOrder =>
-        OrderCreated(order.copy(orderStatus = OrderStatus.New))
-    }
-
-    override def onEvent: PartialFunction[Event, OrderState] = {
-      case evt: OrderCreated => copy(order = evt.order)
-    }
-  }*/
-
+  case class Booked(order: Order, oppositeOrderId: String) extends OrderState with FinalState
 }
