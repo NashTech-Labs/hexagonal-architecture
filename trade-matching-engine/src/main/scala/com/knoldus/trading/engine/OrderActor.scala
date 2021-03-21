@@ -1,19 +1,23 @@
 package com.knoldus.trading.engine
 
 import akka.Done
+import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, LoggerOps}
 import akka.actor.typed.{Behavior, PostStop}
 import akka.persistence.typed.scaladsl.{Effect, EffectBuilder, EventSourcedBehavior}
 import akka.persistence.typed.{PersistenceId, RecoveryCompleted}
-import com.knoldus.common.command.{Command, CreateNewOrder}
+import com.knoldus.common.command.Command
 import com.knoldus.common.event.Event
 import com.knoldus.trading.model.OrderModel.Order
 import com.knoldus.trading.state.OrderState
 import org.slf4j.Logger
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Future
 
 object OrderActor {
+
+  def getServiceKey(id: String): ServiceKey[Command] = ServiceKey[Command](id)
+
   def apply(persistenceId: String, order: Order): Behavior[Command] = {
     Behaviors.setup[Command] { ctx =>
       new OrderActor(persistenceId, ctx).behavior(order)
@@ -40,18 +44,11 @@ object OrderActor {
 
       def invalidCommandHandler(): EffectBuilder[Event, OrderState] = Effect.none[Event, OrderState].thenRun(state => exceptionHandler(state).apply(cmd))
 
-      cmd match {
-        case _: CreateNewOrder =>
-          if (current.handleCommand.isDefinedAt(cmd)) {
-            val event = current.handleCommand(cmd)
-            Effect.persist(event).thenRun { state: OrderState =>
-              publish(event)
-              state
-            }
-          } else {
-            invalidCommandHandler()
-          }
-        case _ => invalidCommandHandler()
+      if (current.handleCommand.isDefinedAt(cmd)) {
+        val (event, extEvt) = current.handleCommand(cmd)
+        Effect.persist(event).thenRun { _ => publish(extEvt, event) }
+      } else {
+        invalidCommandHandler()
       }
     }
 
@@ -65,9 +62,9 @@ object OrderActor {
         state
     }
 
-    def publish(event: Event): Future[Done] = {
-      ctx.system.classicSystem.eventStream.publish(event)
-      Promise.successful[Done](Done).future
+    def publish(events: Event*): Future[Done] = {
+      events.foreach(evt => ctx.system.classicSystem.eventStream.publish(evt))
+      Future.successful(Done)
     }
   }
 
