@@ -6,9 +6,10 @@ import quickfix.fix44.component._
 
 case class NewOrderSingle(clOrdID: ClOrdID,
                           orderType: OrdType,
+                          securityType: SecurityType,
                           instrument: Instrument, // TODO - check what is comprises of
                           orderQtyData: OrderQtyData,
                           side: Side,
-                          //price: Double, // TODO - check if strike price is same as this field
+                          price: Price,
                           transactTime: TransactTime) {
 }

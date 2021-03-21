@@ -59,6 +59,14 @@ class FIXMessageParser {
       throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.side.getValue}")
     }
 
+    if (isValidSecurityType(newOrderSingle)) {
+      throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.securityType.getValue}")
+    }
+
+    if (isValidPrice(newOrderSingle)) {
+      throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.price.getValue}")
+    }
+
     logger.info("The order message has been parsed successfully.")
     true
   }
@@ -68,6 +76,10 @@ class FIXMessageParser {
   }
 
   private def isValidClOrdID(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.clOrdID.getValue.nonEmpty
+
+  private def isValidSecurityType(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.securityType.getValue.nonEmpty
+
+  private def isValidPrice(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.price.getValue > 0
 
   private def isValidOrdType(newOrderSingle: NewOrderSingle): Boolean = ValidOrderType.contains(newOrderSingle.orderType.getValue)
 
