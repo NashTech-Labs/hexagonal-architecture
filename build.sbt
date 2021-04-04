@@ -5,7 +5,8 @@ name := """Hexagonal-Architecture"""
 lazy val commonSettings = Seq(
   organization := "com.knoldus",
   version := "0.1.0",
-  scalaVersion := "2.12.12"
+  scalaVersion := "2.12.12",
+  unmanagedJars in Compile += file("/home/narayan/software/amps-java-client-5.3.0.4/dist/lib/amps_client.jar")
 )
 
 lazy val common = (project in file("common"))
@@ -47,10 +48,23 @@ lazy val tradeViewAdapter = (project in file("trade-view-adapter")).
     )
   ).dependsOn(common)
 
-lazy val tradeBookingAdapter = (project in file("trade-booking-adapter")).
+lazy val tradeBookingService = (project in file("trade-booking-service")).
   settings(commonSettings: _*).
   settings(
-    name := "trade-booking-adapter",
+    name := "trade-booking-service",
+    libraryDependencies ++= Seq(
+      logback,
+      akka_persistence_typed,
+      akka_stream,
+      akka_http_spray_json,
+      h2
+    )
+  ).dependsOn(common)
+
+lazy val tradeReportingService = (project in file("trade-reporting-service")).
+  settings(commonSettings: _*).
+  settings(
+    name := "trade-reporting-service",
     libraryDependencies ++= Seq(
       logback,
       akka_persistence_typed,
@@ -74,9 +88,16 @@ lazy val tradeMatchingEngine = (project in file("trade-matching-engine")).
       h2
     )
   ).dependsOn(common)
+
+lazy val tradeMatchingApp = (project in file("trade-matching-app")).
+  settings(commonSettings: _*).
+  settings(
+    name := "trade-matching-app"
+  ).dependsOn(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter)
+  .aggregate(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter)
+
 lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     name := "Hexagonal-Architecture"
-  ).dependsOn(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter, tradeBookingAdapter)
-  .aggregate(tradeMatchingEngine, tradeFixAdapter, tradeViewAdapter, tradeBookingAdapter)
+  ).aggregate(tradeMatchingApp, tradeBookingService, tradeReportingService)
