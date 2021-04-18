@@ -17,7 +17,7 @@ object TradeBookingService extends App {
   val hAClient = AmpsClient.getConnection(CLIENT_NAME, SERVER_IPS)
   val ampsHandler = new AmpsMessageHandler(hAClient)
   val subscriber = ampsHandler.subscribe(INPUT_TOPIC_NAME)
-  private val tradeId: AtomicInteger = new AtomicInteger
+  private val tradeId: AtomicInteger = new AtomicInteger(1)
 
   subscriber match {
     case Success(messageStream) => messageStream.foreach { message =>

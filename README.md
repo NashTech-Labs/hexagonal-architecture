@@ -21,5 +21,7 @@ This makes components exchangeable at any level and facilitates test automation
 -----------------------------------------------------------------------
 * [Akka HTTP](http://doc.akka.io/docs/akka/2.4.7/scala/http/index.html)
 * [Scala](http://scala-lang.org/)
+* [AMPS](https://www.crankuptheamps.com/amps/)
+* [Cassandra](https://cassandra.apache.org/)
 * [Hexagonal-Architecture](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
 

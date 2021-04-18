@@ -56,8 +56,7 @@ lazy val tradeBookingService = (project in file("trade-booking-service")).
       logback,
       akka_persistence_typed,
       akka_stream,
-      akka_http_spray_json,
-      h2
+      akka_http_spray_json
     )
   ).dependsOn(common)
 
@@ -69,8 +68,7 @@ lazy val tradeReportingService = (project in file("trade-reporting-service")).
       logback,
       akka_persistence_typed,
       akka_stream,
-      akka_http_spray_json,
-      h2
+      akka_http_spray_json
     )
   ).dependsOn(common)
 

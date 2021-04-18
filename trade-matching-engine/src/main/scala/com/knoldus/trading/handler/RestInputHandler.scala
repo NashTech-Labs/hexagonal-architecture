@@ -26,9 +26,6 @@ object RestInputHandler {
         orderActor ! msg
         getUUID = getUUID + 1
         Behaviors.same
-      case msg: BookedOrder =>
-        ctx.spawnAnonymous(LookupActor.apply()) ! LookForActor(msg.orderId, OrderActor.getServiceKey(msg.orderId), msg)
-        Behaviors.same
       case _ => Behaviors.same
     }
   }
