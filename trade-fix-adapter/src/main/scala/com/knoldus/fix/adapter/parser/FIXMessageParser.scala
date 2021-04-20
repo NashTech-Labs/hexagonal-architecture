@@ -1,102 +1,88 @@
 package com.knoldus.fix.adapter.parser
 
-import com.knoldus.fix.adapter.models.NewOrderSingle
 import org.slf4j.{Logger, LoggerFactory}
-import quickfix.MessageUtils.getMessageType
-import quickfix.field.{MsgType, _}
-import quickfix.fix44.component.Instrument
 import quickfix._
+import quickfix.field.{MsgType, _}
+import quickfix.fix44.NewOrderSingle
 
-class FIXMessageParser {
+import scala.compat.java8.OptionConverters._
 
-  import FIXMessageParser._
+object FIXMessageParser {
 
-  def logger: Logger = LoggerFactory.getLogger("FIXMessageProcessor")
+  val logger: Logger = LoggerFactory.getLogger("FIXMessageProcessor")
+  val FieldSeparator = "\001"
+  val NewOrderSingleMsgType = "D"
+  val ValidOrderType = List(OrdType.MARKET, OrdType.LIMIT, OrdType.COUNTER_ORDER_SELECTION)
+  val ValidSide = List(Side.BUY, Side.SELL)
+  val ValidProduct = List(Product.COMMODITY, Product.CORPORATE) // TODO: Check for valid products
 
   @throws[InvalidMessage]
-  def parse(messageFactory: MessageFactory, dataDictionary: DataDictionary, messageString: String): Message = {
+  def parse(messageFactory: MessageFactory, dataDictionary: DataDictionary, messageString: String, session: Session): NewOrderSingle = {
 
-    val index = messageString.indexOf(FieldSeparator)
-    if (index < 0) throw new InvalidMessage("Message does not contain any field separator")
-    val beginString = messageString.substring(2, index)
-    val messageType = getMessageType(messageString)
-    val message = messageFactory.create(beginString, messageType)
-    message.fromString(messageString, dataDictionary, dataDictionary != null)
-    message
+    try {
+      val a: Message = MessageUtils.parse(messageFactory, dataDictionary, messageString)
+      val newOrderSingle = parseOrderMessage(a)
+      logger.info(s"New Order Single message : $newOrderSingle")
+      newOrderSingle
+    } catch {
+      case e: Exception => logger.error(s"Error: $e")
+        //TODO: Handle exception
+        null
+    }
   }
 
-  def parseOrderMessage(message: Message): Boolean = {
+  def parseOrderMessage(message: Message): NewOrderSingle = {
     if (isNewOrderSingle(message, NewOrderSingleMsgType)) {
-      val newOrderSingle: NewOrderSingle = message.asInstanceOf[NewOrderSingle]
-      isValidNewOrderSingle(newOrderSingle)
+      getNewOrderSingle(message)
     } else {
       throw new Exception("Not a single order type")
     }
   }
 
-  private def isValidNewOrderSingle(newOrderSingle: NewOrderSingle) = {
-    if (isValidClOrdID(newOrderSingle)) {
-      throw new IncorrectTagValue(ClOrdID.FIELD, s"${newOrderSingle.clOrdID.getValue}")
-    }
 
-    if (isValidOrdType(newOrderSingle)) {
-      throw new IncorrectTagValue(OrdType.FIELD, s"${newOrderSingle.orderType.getValue}")
-    }
+  private def getNewOrderSingle(message: Message): NewOrderSingle = {
+    val newOrderSingle: fix44.NewOrderSingle = new NewOrderSingle()
 
-    if (isValidProduct(newOrderSingle.instrument)) {
-      throw new IncorrectTagValue(Product.FIELD, s"${newOrderSingle.instrument}")
-    }
+    newOrderSingle.set(new ClOrdID(getClOrdID(message)))
+    newOrderSingle.set(new Side(getSide(message)))
+    newOrderSingle.set(new Price(getPrice(message)))
+    newOrderSingle.set(new OrderQty(getOrderQty(message)))
+    newOrderSingle.set(new Product(getProduct(message)))
+    newOrderSingle.set(new SecurityType(getSecurityType(message)))
 
-    if (isValidStrikePrice(newOrderSingle.instrument)) {
-      throw new IncorrectTagValue(StrikePrice.FIELD, s"${newOrderSingle.instrument}")
-    }
-
-    if (isValidOrderQty(newOrderSingle)) {
-      throw new IncorrectTagValue(OrderQty.FIELD, s"${newOrderSingle.orderQtyData}")
-    }
-
-    if (isValidSide(newOrderSingle)) {
-      throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.side.getValue}")
-    }
-
-    if (isValidSecurityType(newOrderSingle)) {
-      throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.securityType.getValue}")
-    }
-
-    if (isValidPrice(newOrderSingle)) {
-      throw new IncorrectTagValue(Side.FIELD, s"${newOrderSingle.price.getValue}")
-    }
-
-    logger.info("The order message has been parsed successfully.")
-    true
+    logger.info(s"The order message has been parsed successfully and converted to newOrderSingle : $newOrderSingle")
+    newOrderSingle
   }
 
   private def isNewOrderSingle(message: Message, newOrderSingleMsgType: String): Boolean = {
     message.getHeader.getString(MsgType.FIELD).equals(newOrderSingleMsgType)
   }
 
-  private def isValidClOrdID(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.clOrdID.getValue.nonEmpty
+  private def getClOrdID(message: Message): String = {
+    message.getOptionalString(ClOrdID.FIELD).asScala.getOrElse(throw new IncorrectTagValue(ClOrdID.FIELD))
+  }
 
-  private def isValidSecurityType(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.securityType.getValue.nonEmpty
+  private def getSide(message: Message): Char = {
+    val side = message.getChar(Side.FIELD)
+    if (ValidSide.contains(side)) side else throw new IncorrectTagValue(Side.FIELD)
+  }
 
-  private def isValidPrice(newOrderSingle: NewOrderSingle): Boolean = newOrderSingle.price.getValue > 0
+  private def getPrice(message: Message): Double = {
+    val price = message.getDouble(Price.FIELD)
+    if (price > 0) price else throw new IncorrectTagValue(Price.FIELD)
+  }
 
-  private def isValidOrdType(newOrderSingle: NewOrderSingle): Boolean = ValidOrderType.contains(newOrderSingle.orderType.getValue)
+  private def getOrderQty(message: Message): Double = {
+    val orderQty = message.getDouble(OrderQty.FIELD)
+    if (orderQty > 0) orderQty else throw new IncorrectTagValue(OrderQty.FIELD)
+  }
 
-  private def isValidProduct(orderInstrument: Instrument): Boolean = orderInstrument.isSetProduct && ValidProduct.contains(orderInstrument.getProduct.getValue)
+  private def getProduct(message: Message): Int = {
+    val product = message.getInt(Product.FIELD)
+    if (product > 0) product else throw new IncorrectTagValue(SecurityType.FIELD)
+  }
 
-  private def isValidStrikePrice(orderInstrument: Instrument): Boolean = orderInstrument.isSetStrikePrice && orderInstrument.getStrikePrice.getValue > 0
+  private def getSecurityType(message: Message): String =
+    message.getOptionalString(SecurityType.FIELD).asScala.getOrElse(throw new IncorrectTagValue(SecurityType.FIELD))
 
-  private def isValidOrderQty(newOrderSingle: NewOrderSingle): Boolean =
-    newOrderSingle.orderQtyData.isSetOrderQty && newOrderSingle.orderQtyData.getOrderQty.getValue > 0
-
-  private def isValidSide(newOrderSingle: NewOrderSingle): Boolean = ValidSide.contains(newOrderSingle.side.getValue)
-}
-
-object FIXMessageParser {
-  val FieldSeparator = " "
-  val NewOrderSingleMsgType = "D"
-  val ValidOrderType = List(OrdType.MARKET, OrdType.LIMIT, OrdType.COUNTER_ORDER_SELECTION)
-  val ValidSide = List(Side.BUY, Side.SELL)
-  val ValidProduct = List(Product.COMMODITY, Product.CORPORATE) // TODO: Check for valid products
 }

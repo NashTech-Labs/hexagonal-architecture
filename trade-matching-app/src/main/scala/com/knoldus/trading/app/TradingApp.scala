@@ -5,6 +5,7 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import com.knoldus.common.amps.AmpsClient
 import com.knoldus.common.command.ExternalCommand
 import com.knoldus.common.persistence.repository.{OrderRepository, OrderRepositoryImpl}
+import com.knoldus.fix.adapter.FIXMessageProcessor
 import com.knoldus.trading.view.TradingHttpServer
 import com.typesafe.config.{Config, ConfigFactory}
 import slick.basic.DatabaseConfig
@@ -23,7 +24,7 @@ object TradingApp extends App {
   val behavior = Behaviors.setup[ExternalCommand] { ctx: ActorContext[ExternalCommand] =>
     BindingInputOutputHandler(ctx, orderRepository, haClient)
     TradingHttpServer(ctx.system.classicSystem, orderRepository)
-
+    FIXMessageProcessor(ctx.system.classicSystem)
     Behaviors.empty[ExternalCommand]
   }
 
