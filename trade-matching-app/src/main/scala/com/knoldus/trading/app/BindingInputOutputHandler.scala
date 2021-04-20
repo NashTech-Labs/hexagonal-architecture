@@ -21,11 +21,9 @@ object BindingInputOutputHandler {
     val viewActorRef = ctx.spawnAnonymous(ViewOutputHandler.apply(orderRepository))
     val matchingActorRef = ctx.spawnAnonymous(MatchingActor.apply())
     val tradingOutputActorRef = ctx.spawnAnonymous(TradingOutputHandler.apply(haClient))
-   // val tradeBookingActorRef = ctx.spawnAnonymous(TradeBookingOutputHandler.apply())
     ctx.system.classicSystem.eventStream.subscribe(restActorRef.toClassic, classOf[ExternalCommand])
     ctx.system.classicSystem.eventStream.subscribe(viewActorRef.toClassic, classOf[ExternalEvent])
     ctx.system.classicSystem.eventStream.subscribe(tradingOutputActorRef.toClassic, classOf[ExternalEvent])
-    //ctx.system.classicSystem.eventStream.subscribe(tradeBookingActorRef.toClassic, classOf[ExternalEvent])
     ctx.system.classicSystem.eventStream.subscribe(matchingActorRef.toClassic, classOf[OrderInternalEvent])
   }
 }
