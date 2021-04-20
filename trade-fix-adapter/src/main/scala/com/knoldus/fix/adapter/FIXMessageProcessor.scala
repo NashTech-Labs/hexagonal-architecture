@@ -9,7 +9,7 @@ import com.knoldus.fix.adapter.utils.ConfigUtil._
 import org.slf4j.{Logger, LoggerFactory}
 import quickfix.field.{BeginString, SenderCompID, TargetCompID}
 import quickfix.fix44.NewOrderSingle
-import quickfix.{DataDictionary, DefaultMessageFactory, Session, SessionID}
+import quickfix._
 
 import scala.util.{Failure, Success, Try}
 
@@ -32,9 +32,14 @@ object FIXMessageProcessor {
       case Success(messageStream) => messageStream.foreach { message =>
 
         val dataDictionary = new DataDictionary("FIX42.xml")
-        val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(new DefaultMessageFactory(), dataDictionary, message.getData, session)
+        val messageFactory: DefaultMessageFactory = new DefaultMessageFactory()
+        val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(messageFactory, dataDictionary, message.getData, session)
         val createNewOrderCmd = ModelMapper.mapNewOrderSingleToCreateNewOrder(newSingleOrder)
         actorSystem.eventStream.publish(createNewOrderCmd)
+
+        val executionReport = ModelMapper.createExecutionReport(newSingleOrder)
+        logger.info(s"Execution Report : $executionReport")
+        publishMessage(executionReport.toString)
       }
       case Failure(error) => logger.error(error.getMessage)
     }
@@ -42,8 +47,8 @@ object FIXMessageProcessor {
 
   private def publishMessage(message: String): Unit = {
     ampsHandler.publish(OUTPUT_TOPIC_NAME, message) match {
-      case Success(sequenceNumber) => println(s"Sequence Number : $sequenceNumber")
-      case Failure(error) => println(error.getMessage)
+      case Success(sequenceNumber) => logger.info(s"Sequence Number : $sequenceNumber")
+      case Failure(error) => logger.error(s"Could not publish fix message to output topic due to : ${error.getMessage}")
     }
   }
 }
