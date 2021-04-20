@@ -1,4 +1,4 @@
-package com.knoldus.trading.handler
+package com.knoldus.trading.view.handler
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
@@ -28,3 +28,4 @@ object TradingOutputHandler {
     }
   }
 }
+

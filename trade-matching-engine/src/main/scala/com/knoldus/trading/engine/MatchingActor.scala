@@ -2,6 +2,7 @@ package com.knoldus.trading.engine
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import com.knoldus.common.command.BookedOrder
 import com.knoldus.common.event.BookingOrderRequest
 import com.knoldus.trading.command.OrderMatched
 import com.knoldus.trading.engine.LookupActor.LookForActor
@@ -35,6 +36,8 @@ object MatchingActor {
       case PerformOrderBooking(order1, order2) =>
         ctx.log.info(s"sending booking order ${order1}")
         ctx.system.classicSystem.eventStream.publish(getBookingOrderRequest(order1, order2))
+        ctx.spawnAnonymous(LookupActor.apply()) ! LookForActor(order1.orderId, OrderActor.getServiceKey(order1.orderId), BookedOrder(order1.orderId))
+        ctx.spawnAnonymous(LookupActor.apply()) ! LookForActor(order2.orderId, OrderActor.getServiceKey(order2.orderId), BookedOrder(order2.orderId))
         Behaviors.same
       case _ => Behaviors.same
     }

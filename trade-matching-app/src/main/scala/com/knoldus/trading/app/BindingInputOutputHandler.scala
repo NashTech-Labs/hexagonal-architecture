@@ -3,15 +3,13 @@ package com.knoldus.trading.app
 import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.adapter.TypedActorRefOps
 import com.crankuptheamps.client.HAClient
-import com.knoldus.trading.handler.TradingOutputHandler
-//import com.knoldus.booking.adapter.handler.TradeBookingOutputHandler
 import com.knoldus.common.command.ExternalCommand
 import com.knoldus.common.event.ExternalEvent
 import com.knoldus.common.persistence.repository.OrderRepository
 import com.knoldus.trading.engine.MatchingActor
 import com.knoldus.trading.event.OrderInternalEvent
 import com.knoldus.trading.handler.RestInputHandler
-import com.knoldus.trading.view.handler.ViewOutputHandler
+import com.knoldus.trading.view.handler.{TradingOutputHandler, ViewOutputHandler}
 
 object BindingInputOutputHandler {
 
