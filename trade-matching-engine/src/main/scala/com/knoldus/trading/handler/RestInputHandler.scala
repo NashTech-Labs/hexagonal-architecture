@@ -3,9 +3,8 @@ package com.knoldus.trading.handler
 import akka.actor.typed.Behavior
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
-import com.knoldus.common.command.{BookedOrder, CreateNewOrder, ExternalCommand}
-import com.knoldus.trading.engine.LookupActor.LookForActor
-import com.knoldus.trading.engine.{LookupActor, OrderActor}
+import com.knoldus.common.command.{CreateNewOrder, ExternalCommand}
+import com.knoldus.trading.engine.OrderActor
 import com.knoldus.trading.model.OrderModel.Order
 import com.knoldus.trading.state.OrderStatus
 
@@ -18,7 +17,7 @@ object RestInputHandler {
       case msg: CreateNewOrder =>
         val orderId = (getUUID + 1).toString
         val order = Order(orderId, msg.order.side, msg.order.price, msg.order.quantity, msg.order.productCode,
-          msg.order.productType, System.currentTimeMillis(), OrderStatus.New)
+          msg.order.productType, System.currentTimeMillis(), OrderStatus.New, msg.order.source.getOrElse(""))
 
         val orderActor = ctx.spawn(OrderActor(orderId, order), orderId)
         ctx.system.receptionist ! Receptionist.Register(OrderActor.getServiceKey(orderId), orderActor)

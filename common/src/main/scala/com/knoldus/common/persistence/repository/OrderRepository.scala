@@ -18,7 +18,7 @@ trait OrderRepository extends OrderProfile {
     query.result.map(_.headOption).map { optOrder =>
       optOrder.map { order =>
         OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity, order.productCode, order.productType, order.timeStamp,
-          order.status)
+          order.status, order.source)
       }
     }
   }
@@ -27,7 +27,7 @@ trait OrderRepository extends OrderProfile {
     orderProfileQuery.result.map { optOrder =>
       optOrder.map { order =>
         OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity, order.productCode, order.productType, order.timeStamp,
-          order.status)
+          order.status, order.source)
       }
     }
   }

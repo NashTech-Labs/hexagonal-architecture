@@ -25,5 +25,6 @@ CREATE TABLE IF NOT EXISTS orders (
 "product_type" VARCHAR(255) NOT NULL,
 "created_timestamp" BIGINT NOT NULL,
 "status" VARCHAR(255) NOT NULL,
+"source" VARCHAR(255) NOT NULL,
 PRIMARY KEY ("order_id")
 );

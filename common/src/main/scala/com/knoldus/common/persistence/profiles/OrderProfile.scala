@@ -20,7 +20,8 @@ trait OrderProfile {
       productCode,
       productType,
       createdTimeStamp,
-      status
+      status,
+      source
       ).mapTo[PersistenceOrder]
 
     def orderId: Rep[String] = column[String]("order_id", O.PrimaryKey)
@@ -38,6 +39,8 @@ trait OrderProfile {
     def createdTimeStamp: Rep[Long] = column[Long]("created_timestamp")
 
     def status: Rep[String] = column[String]("status")
+
+    def source: Rep[String] = column[String]("source")
   }
 
 }

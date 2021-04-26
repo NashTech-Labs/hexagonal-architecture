@@ -15,7 +15,7 @@ object OrderStateMachine {
 
   private def getOrderResponse(order: Order, orderStatus: OrderStatus): OrderCreatedResponse =
     OrderCreatedResponse(order.orderId, order.side, order.price, order.quantity,
-      order.productCode, order.productType, order.timeStamp, orderStatus)
+      order.productCode, order.productType, order.timeStamp, orderStatus, order.source)
 
   case class New(order: Order) extends OrderState with NonFinalState {
 

@@ -10,8 +10,8 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 object JsonHelper extends SprayJsonSupport with DefaultJsonProtocol {
 
-  implicit val orderRequest: RootJsonFormat[Order] = jsonFormat5(Order)
-  implicit val orderResponse: RootJsonFormat[OrderCreatedResponse] = jsonFormat8(OrderCreatedResponse)
+  implicit val orderRequest: RootJsonFormat[Order] = jsonFormat6(Order)
+  implicit val orderResponse: RootJsonFormat[OrderCreatedResponse] = jsonFormat9(OrderCreatedResponse)
   implicit val tradeResponse: RootJsonFormat[TradeResponse] = jsonFormat8(TradeResponse)
   implicit val tradeReport: RootJsonFormat[TradeReportRequest] = jsonFormat8(TradeReportRequest)
   implicit val bookingOrderRequest: RootJsonFormat[BookingOrderRequest] = jsonFormat5(BookingOrderRequest)

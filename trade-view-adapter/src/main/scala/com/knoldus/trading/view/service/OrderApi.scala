@@ -18,7 +18,7 @@ class OrderApi(ctx: ActorSystem, orderRepository: OrderRepository) {
   def postOrder: Route = path("orders") {
     post {
       entity(as[Order]) { value =>
-        val event = CreateNewOrder(value)
+        val event = CreateNewOrder(value.copy(source = Some("rest")))
         ctx.eventStream.publish(event)
         complete(value.toString)
       }

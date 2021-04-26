@@ -16,7 +16,7 @@ object FixInputHandler {
       case msg: CreateNewOrder =>
         val orderId = (getUUID + 1).toString
         val order = Order(orderId, msg.order.side, msg.order.price, msg.order.quantity, msg.order.productCode,
-          msg.order.productType, System.currentTimeMillis(), OrderStatus.New)
+          msg.order.productType, System.currentTimeMillis(), OrderStatus.New, msg.order.source.getOrElse(""))
 
         val orderActor = ctx.spawn(OrderActor(orderId, order), orderId)
         ctx.system.receptionist ! Receptionist.Register(OrderActor.getServiceKey(orderId), orderActor)

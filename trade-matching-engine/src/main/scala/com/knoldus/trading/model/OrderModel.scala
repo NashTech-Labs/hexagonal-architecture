@@ -11,5 +11,6 @@ object OrderModel {
                    productCode: Int,
                    productType: String,
                    timeStamp: Long,
-                   orderStatus: OrderStatus)
+                   orderStatus: OrderStatus,
+                   source: String)
 }

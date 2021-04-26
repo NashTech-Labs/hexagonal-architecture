@@ -28,6 +28,6 @@ object ViewOutputHandler {
   }
 
   def getPersistenceOrder(order: OrderCreatedResponse): PersistenceOrder = PersistenceOrder(order.orderId, order.side, order.price, order.quantity,
-    order.productCode, order.productType, order.timeStamp, order.status)
+    order.productCode, order.productType, order.timeStamp, order.status, order.source)
 
 }
