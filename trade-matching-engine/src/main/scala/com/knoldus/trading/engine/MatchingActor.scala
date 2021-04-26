@@ -35,9 +35,9 @@ object MatchingActor {
         Behaviors.same
       case PerformOrderBooking(order1, order2) =>
         ctx.log.info(s"sending booking order ${order1}")
-        ctx.system.classicSystem.eventStream.publish(getBookingOrderRequest(order1, order2))
         ctx.spawnAnonymous(LookupActor.apply()) ! LookForActor(order1.orderId, OrderActor.getServiceKey(order1.orderId), BookedOrder(order1.orderId))
         ctx.spawnAnonymous(LookupActor.apply()) ! LookForActor(order2.orderId, OrderActor.getServiceKey(order2.orderId), BookedOrder(order2.orderId))
+        ctx.system.classicSystem.eventStream.publish(getBookingOrderRequest(order1, order2))
         Behaviors.same
       case _ => Behaviors.same
     }

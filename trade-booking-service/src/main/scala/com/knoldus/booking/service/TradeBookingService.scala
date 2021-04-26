@@ -13,7 +13,6 @@ import scala.util.{Failure, Success}
 
 object TradeBookingService extends App {
 
-
   val hAClient = AmpsClient.getConnection(CLIENT_NAME, SERVER_IPS)
   val ampsHandler = new AmpsMessageHandler(hAClient)
   val subscriber = ampsHandler.subscribe(INPUT_TOPIC_NAME)
