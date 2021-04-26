@@ -27,7 +27,7 @@ object ModelMapper {
       new OrderID(newSingleOrder.getClOrdID.getValue),
       new ExecID(UUID.randomUUID().toString),
       new ExecType(ExecType.NEW),
-      new OrdStatus(OrdStatus.ACCEPTED_FOR_BIDDING),
+      new OrdStatus(OrdStatus.NEW),
       newSingleOrder.getSide,
       new LeavesQty(newSingleOrder.getOrderQty.getValue),
       new CumQty(0),
