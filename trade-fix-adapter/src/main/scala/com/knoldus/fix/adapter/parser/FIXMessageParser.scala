@@ -27,7 +27,7 @@ object FIXMessageParser {
     } catch {
       case e: Exception => logger.error(s"Error: $e")
         //TODO: Handle exception
-        null
+        throw new Exception("Not a valid order")
     }
   }
 

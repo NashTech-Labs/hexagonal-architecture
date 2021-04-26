@@ -5,6 +5,7 @@ import com.crankuptheamps.client.{HAClient, Message}
 import com.knoldus.common.amps.{AmpsClient, AmpsMessageHandler}
 import com.knoldus.fix.adapter.mapper.ModelMapper
 import com.knoldus.fix.adapter.parser.FIXMessageParser
+import com.knoldus.fix.adapter.parser.FIXMessageParser.logger
 import com.knoldus.fix.adapter.utils.ConfigUtil._
 import org.slf4j.{Logger, LoggerFactory}
 import quickfix.field.{BeginString, SenderCompID, TargetCompID}
@@ -29,18 +30,24 @@ object FIXMessageProcessor {
   def apply(actorSystem: ActorSystem): Unit = {
 
     subscriber match {
-      case Success(messageStream) => messageStream.foreach { message =>
+      case Success(messageStream) =>
+        messageStream.foreach { message =>
+          try {
 
-        val dataDictionary = new DataDictionary("FIX42.xml")
-        val messageFactory: DefaultMessageFactory = new DefaultMessageFactory()
-        val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(messageFactory, dataDictionary, message.getData, session)
-        val createNewOrderCmd = ModelMapper.mapNewOrderSingleToCreateNewOrder(newSingleOrder)
-        actorSystem.eventStream.publish(createNewOrderCmd)
+            val dataDictionary = new DataDictionary("FIX42.xml")
+            val messageFactory: DefaultMessageFactory = new DefaultMessageFactory()
+            val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(messageFactory, dataDictionary, message.getData, session)
+            val createNewOrderCmd = ModelMapper.mapNewOrderSingleToCreateNewOrder(newSingleOrder)
+            actorSystem.eventStream.publish(createNewOrderCmd)
 
-        val executionReport = ModelMapper.createExecutionReport(newSingleOrder)
-        logger.info(s"Execution Report : $executionReport")
-        publishMessage(executionReport.toString)
-      }
+            val executionReport = ModelMapper.createExecutionReport(newSingleOrder)
+            logger.info(s"Execution Report : $executionReport")
+            publishMessage(executionReport.toString)
+          } catch {
+            case e: Exception => logger.error(s"Error: $e")
+          }
+        }
+
       case Failure(error) => logger.error(error.getMessage)
     }
   }

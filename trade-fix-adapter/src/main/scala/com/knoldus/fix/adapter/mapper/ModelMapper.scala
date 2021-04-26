@@ -2,7 +2,7 @@ package com.knoldus.fix.adapter.mapper
 
 import com.knoldus.common.command.CreateNewOrder
 import com.knoldus.common.model.OrderRequest.Order
-import quickfix.field.{AvgPx, CumQty, ExecID, ExecType, LeavesQty, OrdStatus, OrderID}
+import quickfix.field.{AvgPx, CumQty, ExecID, ExecType, LeavesQty, OrdStatus, OrderID, Side}
 import quickfix.fix44.{ExecutionReport, NewOrderSingle}
 
 import java.util.UUID
@@ -10,8 +10,10 @@ import java.util.UUID
 object ModelMapper {
 
   def mapNewOrderSingleToCreateNewOrder(newOrderSingle: NewOrderSingle): CreateNewOrder = {
+    val side: Side = newOrderSingle.getSide
+    val orderSide = if (side.getValue == '1') "buy" else if ((side.getValue == '2')) "sell" else ""
     CreateNewOrder(
-      Order(newOrderSingle.getSide.getValue.toString,
+      Order(orderSide,
         newOrderSingle.getPrice.getValue,
         newOrderSingle.getOrderQty.getValue.toInt,
         newOrderSingle.getProduct.getValue,
