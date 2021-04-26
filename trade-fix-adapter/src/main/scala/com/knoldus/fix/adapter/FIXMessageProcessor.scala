@@ -36,7 +36,7 @@ object FIXMessageProcessor {
 
             val dataDictionary = new DataDictionary("FIX42.xml")
             val messageFactory: DefaultMessageFactory = new DefaultMessageFactory()
-            val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(messageFactory, dataDictionary, message.getData, session)
+            val newSingleOrder: NewOrderSingle = FIXMessageParser.parse(messageFactory, dataDictionary, message.getData)
             val createNewOrderCmd = ModelMapper.mapNewOrderSingleToCreateNewOrder(newSingleOrder)
             actorSystem.eventStream.publish(createNewOrderCmd)
 

@@ -17,7 +17,7 @@ object FIXMessageParser {
   val ValidProduct = List(Product.COMMODITY, Product.CORPORATE) // TODO: Check for valid products
 
   @throws[InvalidMessage]
-  def parse(messageFactory: MessageFactory, dataDictionary: DataDictionary, messageString: String, session: Session): NewOrderSingle = {
+  def parse(messageFactory: MessageFactory, dataDictionary: DataDictionary, messageString: String): NewOrderSingle = {
 
     try {
       val a: Message = MessageUtils.parse(messageFactory, dataDictionary, messageString)
@@ -79,7 +79,7 @@ object FIXMessageParser {
 
   private def getProduct(message: Message): Int = {
     val product = message.getInt(Product.FIELD)
-    if (product > 0) product else throw new IncorrectTagValue(SecurityType.FIELD)
+    if (product > 0) product else throw new IncorrectTagValue(Product.FIELD)
   }
 
   private def getSecurityType(message: Message): String =
