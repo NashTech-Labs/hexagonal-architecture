@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
   organization := "com.knoldus",
   version := "0.1.0",
   scalaVersion := "2.12.12",
-  unmanagedJars in Compile += file("/home/jasmine/Documents/Softwares/amps-java-client-5.3.0.4/dist/lib/amps_client.jar")
+  libraryDependencies += "com.crankuptheamps" % "amps-client" % "5.3.3.0"
 )
 
 lazy val common = (project in file("common"))
